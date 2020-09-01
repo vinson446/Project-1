@@ -9,6 +9,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public event Action StartRunning = delegate { };
     public event Action Jumping = delegate { };
     public event Action Falling = delegate { };
+    public event Action Landed = delegate { };
     public event Action StartSprinting = delegate { };
 
     [Header("References")]
@@ -18,7 +19,7 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] LayerMask groundLayer;
 
     [Header("Movement Settings")]
-    [SerializeField] float speed = 6;
+    [SerializeField] float runSpeed = 6;
     [SerializeField] float sprintSpeed = 12;
     [SerializeField] float turnSmoothing = 0.1f;
     float turnSmoothVelocity;
@@ -29,9 +30,8 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] float gravity;
     [SerializeField] bool isGrounded;
     Vector3 playerVerticalVelocity;
-    public Vector3 controllerVelocity;
 
-    // animation checks
+    // animation checks (making it public for ez debugging)
     public bool isMoving = false;
     public bool isJumping = false;
     public bool isFalling = false;
@@ -46,24 +46,34 @@ public class ThirdPersonMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        Movement();
+        VerticalMovement();
+        HorizontalMovement();
     }
 
-    void Movement()
+    // apply horizontal movement on x and z axes- going forwards/backwards and sideways
+    void HorizontalMovement()
     {
-        controllerVelocity = characterController.velocity;
         // check if player is on a ground layer
         isGrounded = Physics.CheckSphere(groundChecker.position, 0.1f, groundLayer);
 
-        // apply horizontal movement on x and z axes- going forwards/backwards and sideways
+        // get user input
         float horizontal = Input.GetAxisRaw("Horizontal");
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
+        float moveSpeed;
+        if (Input.GetKey(KeyCode.LeftShift))
+        {
+            isSprinting = true;
+            moveSpeed = sprintSpeed;
+        }
+        else
+        {
+            isSprinting = false;
+            moveSpeed = runSpeed;
+        }
 
         if (direction.magnitude >= 0.1f)
         {
-            CheckIfStartedMoving();
-
             // rotate based on camera rotation
             float targetAngle = Mathf.Atan2(direction.x, direction.z) * Mathf.Rad2Deg + cam.eulerAngles.y;
             float angle = Mathf.SmoothDampAngle(transform.eulerAngles.y, targetAngle, ref turnSmoothVelocity, turnSmoothing);
@@ -71,38 +81,55 @@ public class ThirdPersonMovement : MonoBehaviour
 
             // movement- turn rotation into direction
             Vector3 moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
-            if (!Input.GetKey(KeyCode.LeftShift))
+
+            if (isMoving)
             {
-                characterController.Move(moveDir.normalized * speed * Time.deltaTime);
-                isSprinting = false;
+                // sprinting
+                if (Input.GetKeyDown(KeyCode.LeftShift))
+                {
+                    StartSprinting?.Invoke();
+                }
+                // running
+                else if (Input.GetKeyUp(KeyCode.LeftShift))
+                {
+                    StartRunning?.Invoke();
+                }
             }
-            // sprint
-            else
+            // start movement animation
+            else 
             {
-                characterController.Move(moveDir.normalized * sprintSpeed * Time.deltaTime);
-                isSprinting = true;
+                CheckIfStartedMoving();
             }
+
+            characterController.Move(moveDir.normalized * moveSpeed * Time.deltaTime);
         }
         else
         {
             CheckIfStoppedMoving();
         }
+    }
 
-        // applying vertical movement on y axis- jumping and gravity
+    // applying vertical movement on y axis- jumping and gravity
+    void VerticalMovement()
+    {
         if (isGrounded)
         {
             if (playerVerticalVelocity.y < 0)
                 playerVerticalVelocity.y = 0;
 
-            CheckIfStoppedFalling();
+            if (isFalling)
+                CheckIfStoppedFalling();
         }
 
-        if (isGrounded && Input.GetButtonDown("Jump"))
+        // jump
+        if (isGrounded && Input.GetButton("Jump"))
         {
             playerVerticalVelocity.y = Mathf.Sqrt(jumpForce * -2.0f * gravity);
         }
 
+        // gravity
         playerVerticalVelocity.y += gravity * Time.deltaTime;
+
         characterController.Move(playerVerticalVelocity * Time.deltaTime);
 
         if (characterController.velocity.y > 2)
@@ -124,13 +151,13 @@ public class ThirdPersonMovement : MonoBehaviour
         {
             if (!isMoving)
             {
-                if (!isSprinting)
+                if (isSprinting)
                 {
-                    StartRunning?.Invoke();
+                    StartSprinting?.Invoke();
                 }
                 else
                 {
-                    StartSprinting?.Invoke();
+                    StartRunning?.Invoke();
                 }
             }
 
@@ -138,18 +165,19 @@ public class ThirdPersonMovement : MonoBehaviour
         }
     }
 
-    // invoke idle when player stops moving while grounded or after being airborne
+    // invoke idle when player stops moving while grounded 
     void CheckIfStoppedMoving()
     {
         if (isGrounded)
         {
-            if (isMoving || !isFalling)
+            if (isMoving)
                 Idle?.Invoke();
 
             isMoving = false;
         }
     }
 
+    // invoke jumping when player applies upward jump movement
     void CheckIfStartedJumping()
     {
         if (!isGrounded)
@@ -167,6 +195,7 @@ public class ThirdPersonMovement : MonoBehaviour
         isJumping = false;
     }
 
+    // invoke falling when player's y position is decreasing
     void CheckIfStartedFalling()
     {
         if (!isGrounded)
@@ -182,5 +211,8 @@ public class ThirdPersonMovement : MonoBehaviour
     void CheckIfStoppedFalling()
     {
         isFalling = false;
+
+        if (!isMoving)
+            Landed?.Invoke();
     }
 }

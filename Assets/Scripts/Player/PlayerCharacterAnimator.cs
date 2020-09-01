@@ -11,6 +11,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
     const string RunState = "Running";
     const string JumpState = "Jumping";
     const string FallState = "Falling";
+    const string LandedState = "Landed";
     const string SprintState = "Sprinting";
 
     Animator animator = null;
@@ -18,18 +19,6 @@ public class PlayerCharacterAnimator : MonoBehaviour
     private void Awake()
     {
         animator = GetComponent<Animator>();
-    }
-
-    // Start is called before the first frame update
-    void Start()
-    {
-        
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void OnIdle()
@@ -52,6 +41,24 @@ public class PlayerCharacterAnimator : MonoBehaviour
         animator.CrossFadeInFixedTime(FallState, 0.2f);
     }
 
+    void OnLanded()
+    {
+        animator.CrossFadeInFixedTime(LandedState, 0.2f);
+        StartCoroutine(TransitionFromLandedToIdle());
+    }
+
+    void OnSprinting()
+    {
+        animator.CrossFadeInFixedTime(SprintState, 0.2f);
+    }
+
+    IEnumerator TransitionFromLandedToIdle()
+    {
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
+
+        animator.CrossFadeInFixedTime(IdleState, 0.2f);
+    }
+
     void OnStartSprinting()
     {
         animator.CrossFadeInFixedTime(SprintState, 0.2f);
@@ -63,7 +70,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.StartRunning += OnStartRunning;
         thirdPersonMovement.Jumping += OnJumping;
         thirdPersonMovement.Falling += OnFalling;
-        // thirdPersonMovement.StartSprinting += OnStartSprinting;
+        thirdPersonMovement.Landed += OnLanded;
+        thirdPersonMovement.StartSprinting += OnStartSprinting;
     }
 
     private void OnDisable()
@@ -72,6 +80,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.StartRunning -= OnStartRunning;
         thirdPersonMovement.Jumping -= OnJumping;
         thirdPersonMovement.Falling -= OnFalling;
+        thirdPersonMovement.Landed -= OnLanded;
         thirdPersonMovement.StartSprinting -= OnStartSprinting;
     }
 }
