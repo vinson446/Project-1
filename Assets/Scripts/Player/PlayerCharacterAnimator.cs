@@ -56,7 +56,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
     {
         yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
 
-        animator.CrossFadeInFixedTime(IdleState, 0.2f);
+        if (!thirdPersonMovement.isMoving)
+            animator.CrossFadeInFixedTime(IdleState, 0.2f);
     }
 
     void OnStartSprinting()

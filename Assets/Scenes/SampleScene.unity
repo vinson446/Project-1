@@ -467,13 +467,12 @@ MonoBehaviour:
   groundLayer:
     serializedVersion: 2
     m_Bits: 256
-  speed: 6
-  sprintSpeed: 12
+  runSpeed: 6
+  sprintSpeed: 10
   turnSmoothing: 0.1
-  jumpForce: 3
+  jumpForce: 1.5
   gravity: -9.81
   isGrounded: 0
-  controllerVelocity: {x: 0, y: 0, z: 0}
   isMoving: 0
   isJumping: 0
   isFalling: 0

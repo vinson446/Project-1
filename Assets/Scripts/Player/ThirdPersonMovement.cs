@@ -46,8 +46,8 @@ public class ThirdPersonMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        VerticalMovement();
         HorizontalMovement();
+        VerticalMovement();
     }
 
     // apply horizontal movement on x and z axes- going forwards/backwards and sideways
@@ -82,6 +82,7 @@ public class ThirdPersonMovement : MonoBehaviour
             // movement- turn rotation into direction
             Vector3 moveDir = Quaternion.Euler(0, targetAngle, 0) * Vector3.forward;
 
+            // if already moving, check whether player is running or sprinting
             if (isMoving)
             {
                 // sprinting
