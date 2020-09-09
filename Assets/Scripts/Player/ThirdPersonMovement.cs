@@ -5,12 +5,16 @@ using System;
 
 public class ThirdPersonMovement : MonoBehaviour
 {
+    // movement animation events
     public event Action Idle = delegate { };
     public event Action StartRunning = delegate { };
     public event Action Jumping = delegate { };
     public event Action Falling = delegate { };
     public event Action Landed = delegate { };
     public event Action StartSprinting = delegate { };
+
+    // attack animation events
+    public event Action ForceImpulse = delegate { };
 
     [Header("References")]
     [SerializeField] CharacterController characterController;
@@ -23,19 +27,26 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] float sprintSpeed = 12;
     [SerializeField] float turnSmoothing = 0.1f;
     float turnSmoothVelocity;
-    // bool isSprinting;
+
+    bool canMove = true;
+    public bool CanMove { get => canMove; set => canMove = value; }
 
     [Header("Physics Settings")]
     [SerializeField] float jumpForce;
     [SerializeField] float gravity;
-    [SerializeField] bool isGrounded;
+    bool isGrounded;
     Vector3 playerVerticalVelocity;
 
-    // animation checks (making it public for ez debugging)
-    public bool isMoving = false;
-    public bool isJumping = false;
-    public bool isFalling = false;
-    public bool isSprinting = false;
+    // animation checks 
+    public bool isMoving { get; private set; }
+    public bool isJumping { get; private set; }
+    bool isFalling;
+    bool isLanding;
+    public bool IsLanding { get => isLanding; set => isLanding = value; }
+    public bool isSprinting { get; private set; }
+
+    bool isAttacking;
+    public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
 
     // Start is called before the first frame update
     void Start()
@@ -46,8 +57,11 @@ public class ThirdPersonMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        HorizontalMovement();
-        VerticalMovement();
+        if (canMove)
+        {
+            HorizontalMovement();
+            VerticalMovement();
+        }
     }
 
     // apply horizontal movement on x and z axes- going forwards/backwards and sideways
@@ -61,6 +75,7 @@ public class ThirdPersonMovement : MonoBehaviour
         float vertical = Input.GetAxisRaw("Vertical");
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
         float moveSpeed;
+
         if (Input.GetKey(KeyCode.LeftShift))
         {
             isSprinting = true;
@@ -123,7 +138,7 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         // jump
-        if (isGrounded && Input.GetButton("Jump"))
+        if (isGrounded && Input.GetButton("Jump") && !isAttacking)
         {
             playerVerticalVelocity.y = Mathf.Sqrt(jumpForce * -2.0f * gravity);
         }
@@ -150,7 +165,7 @@ public class ThirdPersonMovement : MonoBehaviour
     {
         if (isGrounded)
         {
-            if (!isMoving)
+            if (!isMoving && !isAttacking)
             {
                 if (isSprinting)
                 {
@@ -169,13 +184,11 @@ public class ThirdPersonMovement : MonoBehaviour
     // invoke idle when player stops moving while grounded 
     void CheckIfStoppedMoving()
     {
-        if (isGrounded)
+        if (isGrounded && isMoving && !isAttacking)
         {
-            if (isMoving)
-                Idle?.Invoke();
-
-            isMoving = false;
+            Idle?.Invoke();
         }
+        isMoving = false;
     }
 
     // invoke jumping when player applies upward jump movement
@@ -212,8 +225,36 @@ public class ThirdPersonMovement : MonoBehaviour
     void CheckIfStoppedFalling()
     {
         isFalling = false;
+        isLanding = true;
 
         if (!isMoving)
+        {
             Landed?.Invoke();
+        }
+        else
+            isLanding = false;
+    }
+
+    public bool CheckIfStartedAttacking(int skillNum)
+    {
+        switch (skillNum)
+        {
+            case 0:
+                if (isGrounded && !isLanding)
+                {
+                    isAttacking = true;
+                    canMove = false;
+
+                    ForceImpulse?.Invoke();
+
+                    return true;
+                }
+                break;
+
+            default:
+                break;
+        }
+
+        return false;
     }
 }

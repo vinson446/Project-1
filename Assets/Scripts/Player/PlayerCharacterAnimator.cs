@@ -5,7 +5,7 @@ using UnityEngine;
 [RequireComponent(typeof(Animator))]
 public class PlayerCharacterAnimator : MonoBehaviour
 {
-    [SerializeField] ThirdPersonMovement thirdPersonMovement = null;
+    ThirdPersonMovement thirdPersonMovement = null;
 
     const string IdleState = "Idle";
     const string RunState = "Running";
@@ -14,10 +14,13 @@ public class PlayerCharacterAnimator : MonoBehaviour
     const string LandedState = "Landed";
     const string SprintState = "Sprinting";
 
+    const string ForceImpulseState = "ForceImpulse";
+
     Animator animator = null;
 
     private void Awake()
     {
+        thirdPersonMovement = GetComponent<ThirdPersonMovement>();
         animator = GetComponent<Animator>();
     }
 
@@ -47,17 +50,40 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StartCoroutine(TransitionFromLandedToIdle());
     }
 
+    IEnumerator TransitionFromLandedToIdle()
+    {
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
+        thirdPersonMovement.IsLanding = false;
+
+        if (!thirdPersonMovement.isMoving && !thirdPersonMovement.isJumping)
+            animator.CrossFadeInFixedTime(IdleState, 0.2f);
+    }
+
     void OnSprinting()
     {
         animator.CrossFadeInFixedTime(SprintState, 0.2f);
     }
 
-    IEnumerator TransitionFromLandedToIdle()
+    void OnForceImpulse()
     {
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
+        animator.CrossFadeInFixedTime(ForceImpulseState, 0.2f);
+        StartCoroutine(TransitionFromAttackToGroundedAnimation(6));
+    }
 
-        if (!thirdPersonMovement.isMoving)
-            animator.CrossFadeInFixedTime(IdleState, 0.2f);
+    IEnumerator TransitionFromAttackToGroundedAnimation(int index)
+    {
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[index].length);
+
+        thirdPersonMovement.IsAttacking = false;
+        thirdPersonMovement.CanMove = true;
+
+        if (thirdPersonMovement.isSprinting)
+            OnSprinting();
+        else if (thirdPersonMovement.isMoving)
+            OnStartRunning();
+        else if (!thirdPersonMovement.isMoving)
+            OnIdle();
+
     }
 
     void OnStartSprinting()
@@ -73,6 +99,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.Falling += OnFalling;
         thirdPersonMovement.Landed += OnLanded;
         thirdPersonMovement.StartSprinting += OnStartSprinting;
+
+        thirdPersonMovement.ForceImpulse += OnForceImpulse;
     }
 
     private void OnDisable()
@@ -83,5 +111,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.Falling -= OnFalling;
         thirdPersonMovement.Landed -= OnLanded;
         thirdPersonMovement.StartSprinting -= OnStartSprinting;
+
+        thirdPersonMovement.ForceImpulse -= OnForceImpulse;
     }
 }
