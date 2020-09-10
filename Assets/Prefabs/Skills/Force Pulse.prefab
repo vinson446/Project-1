@@ -43,6 +43,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b1f274cbb3ecc2c4f8a11a390e294b8a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  cooldown: 5
   force: 1000
-  range: 100
-  upwardsPush: 1
+  range: 25
+  upwardsPush: 5
+  delay: 0.35

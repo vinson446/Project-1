@@ -4,10 +4,11 @@ using UnityEngine;
 
 public abstract class Ability : MonoBehaviour
 {
-    protected float cooldown;
+    [Header("Ability Settings")]
+    [SerializeField] protected float cooldown;
     public float Cooldown
     {
-        get => cooldown = 5;
+        get => cooldown;
         set => cooldown = value;
     }
 
