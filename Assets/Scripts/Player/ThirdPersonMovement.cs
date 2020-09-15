@@ -19,7 +19,8 @@ public class ThirdPersonMovement : MonoBehaviour
     [Header("References")]
     [SerializeField] CharacterController characterController;
     [SerializeField] Transform cam;
-    [SerializeField] Transform groundChecker;
+    Collider characterControllerColl;
+    [SerializeField] float colliderYPadding;
     [SerializeField] LayerMask groundLayer;
 
     [Header("Movement Settings")]
@@ -34,7 +35,7 @@ public class ThirdPersonMovement : MonoBehaviour
     [Header("Physics Settings")]
     [SerializeField] float jumpForce;
     [SerializeField] float gravity;
-    bool isGrounded;
+    [SerializeField] bool isGrounded;
     Vector3 playerVerticalVelocity;
 
     // animation checks 
@@ -47,6 +48,11 @@ public class ThirdPersonMovement : MonoBehaviour
 
     bool isAttacking;
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
+
+    private void Awake()
+    {
+        characterControllerColl = characterController.GetComponent<Collider>();    
+    }
 
     // Start is called before the first frame update
     void Start()
@@ -62,13 +68,17 @@ public class ThirdPersonMovement : MonoBehaviour
             HorizontalMovement();
             VerticalMovement();
         }
+        else
+        {
+            ApplyGravity();
+        }
     }
 
     // apply horizontal movement on x and z axes- going forwards/backwards and sideways
     void HorizontalMovement()
     {
         // check if player is on a ground layer
-        isGrounded = Physics.CheckSphere(groundChecker.position, 0.1f, groundLayer);
+        isGrounded = Physics.CheckSphere(characterControllerColl.transform.position + new Vector3(0, colliderYPadding, 0), 0.1f, groundLayer);
 
         // get user input
         float horizontal = Input.GetAxisRaw("Horizontal");
@@ -157,6 +167,13 @@ public class ThirdPersonMovement : MonoBehaviour
             CheckIfStoppedJumping();
             CheckIfStartedFalling();
         }
+    }
+
+    void ApplyGravity()
+    {
+        playerVerticalVelocity.y += gravity * Time.deltaTime;
+
+        characterController.Move(playerVerticalVelocity * Time.deltaTime);
     }
 
     // event calls to animators
@@ -256,5 +273,11 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         return false;
+    }
+
+    private void OnDrawGizmos()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.DrawSphere(characterControllerColl.transform.position + new Vector3(0, colliderYPadding, 0), 0.1f);
     }
 }
