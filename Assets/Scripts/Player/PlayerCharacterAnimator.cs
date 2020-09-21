@@ -31,7 +31,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
     void OnStartRunning()
     {
-        animator.CrossFadeInFixedTime(RunState, 0.2f);
+        animator.CrossFadeInFixedTime(RunState, 0.1f);
     }
 
     void OnJumping()
@@ -50,6 +50,11 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StartCoroutine(TransitionFromLandedToIdle());
     }
 
+    void OnStartSprinting()
+    {
+        animator.CrossFadeInFixedTime(SprintState, 0.1f);
+    }
+
     IEnumerator TransitionFromLandedToIdle()
     {
         yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
@@ -57,11 +62,6 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         if (!thirdPersonMovement.isMoving && !thirdPersonMovement.isJumping)
             animator.CrossFadeInFixedTime(IdleState, 0.2f);
-    }
-
-    void OnSprinting()
-    {
-        animator.CrossFadeInFixedTime(SprintState, 0.2f);
     }
 
     void OnForceImpulse()
@@ -78,17 +78,12 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.CanMove = true;
 
         if (thirdPersonMovement.isSprinting)
-            OnSprinting();
+            OnStartSprinting();
         else if (thirdPersonMovement.isMoving)
             OnStartRunning();
         else if (!thirdPersonMovement.isMoving)
             OnIdle();
 
-    }
-
-    void OnStartSprinting()
-    {
-        animator.CrossFadeInFixedTime(SprintState, 0.2f);
     }
 
     private void OnEnable()

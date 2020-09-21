@@ -18,8 +18,8 @@ public class ThirdPersonMovement : MonoBehaviour
 
     [Header("References")]
     [SerializeField] CharacterController characterController;
-    [SerializeField] Transform cam;
     Collider characterControllerColl;
+    [SerializeField] Transform cam;
     [SerializeField] float colliderYPadding;
     [SerializeField] LayerMask groundLayer;
 
@@ -34,6 +34,7 @@ public class ThirdPersonMovement : MonoBehaviour
 
     [Header("Physics Settings")]
     [SerializeField] float jumpForce;
+    [SerializeField] float takeDamageForce;
     [SerializeField] float gravity;
     [SerializeField] bool isGrounded;
     Vector3 playerVerticalVelocity;
@@ -48,6 +49,7 @@ public class ThirdPersonMovement : MonoBehaviour
 
     bool isAttacking;
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
+    public bool isDamaged { get; private set; }
 
     private void Awake()
     {
@@ -86,15 +88,15 @@ public class ThirdPersonMovement : MonoBehaviour
         Vector3 direction = new Vector3(horizontal, 0, vertical).normalized;
         float moveSpeed;
 
-        if (Input.GetKey(KeyCode.LeftShift))
-        {
-            isSprinting = true;
-            moveSpeed = sprintSpeed;
-        }
-        else
+        if (!Input.GetKey(KeyCode.LeftShift))
         {
             isSprinting = false;
             moveSpeed = runSpeed;
+        }
+        else
+        {
+            isSprinting = true;
+            moveSpeed = sprintSpeed;
         }
 
         if (direction.magnitude >= 0.1f)
@@ -158,14 +160,21 @@ public class ThirdPersonMovement : MonoBehaviour
 
         characterController.Move(playerVerticalVelocity * Time.deltaTime);
 
-        if (characterController.velocity.y > 2)
+        if (!isDamaged)
         {
-            CheckIfStartedJumping();
+            if (characterController.velocity.y > 2)
+            {
+                CheckIfStartedJumping();
+            }
+            else
+            {
+                CheckIfStoppedJumping();
+                CheckIfStartedFalling();
+            }
         }
         else
         {
-            CheckIfStoppedJumping();
-            CheckIfStartedFalling();
+            CheckIfStoppedFalling();
         }
     }
 
@@ -174,6 +183,19 @@ public class ThirdPersonMovement : MonoBehaviour
         playerVerticalVelocity.y += gravity * Time.deltaTime;
 
         characterController.Move(playerVerticalVelocity * Time.deltaTime);
+    }
+
+    public void TakeDamageKnockback()
+    {
+        isDamaged = true;
+        playerVerticalVelocity.y = Mathf.Sqrt(takeDamageForce * -2.0f * gravity);
+
+        Invoke("InvincibilityFrames", 1);
+    }
+
+    void InvincibilityFrames()
+    {
+        isDamaged = false;
     }
 
     // event calls to animators
@@ -273,11 +295,5 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         return false;
-    }
-
-    private void OnDrawGizmos()
-    {
-        Gizmos.color = Color.red;
-        Gizmos.DrawSphere(characterControllerColl.transform.position + new Vector3(0, colliderYPadding, 0), 0.1f);
     }
 }

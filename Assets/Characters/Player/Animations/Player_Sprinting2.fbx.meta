@@ -1,11 +1,11 @@
 fileFormatVersion: 2
-guid: c9662e4f7dabe064888589fd4d49713b
+guid: 7014d6aaf5e76f04abc18bcbc7f3c0c9
 ModelImporter:
   serializedVersion: 19301
   internalIDToNameTable:
   - first:
       74: -203655887218126122
-    second: Player_Running
+    second: Player_Sprinting2
   externalObjects: {}
   materials:
     materialImportMode: 1
@@ -35,11 +35,11 @@ ModelImporter:
     extraUserProperties: []
     clipAnimations:
     - serializedVersion: 16
-      name: Player_Running
+      name: Player_Sprinting2
       takeName: mixamo.com
       internalID: 0
       firstFrame: 0
-      lastFrame: 17
+      lastFrame: 14
       wrapMode: 0
       orientationOffsetY: 0
       level: 0
@@ -522,43 +522,43 @@ ModelImporter:
         length: 0
         modified: 0
     skeleton:
-    - name: Ch28_nonPBR(Clone)
+    - name: Player(Clone)
       parentName: 
       position: {x: 0, y: 0, z: 0}
       rotation: {x: 0, y: 0, z: 0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Body
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Sneakers
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Pants
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Hoody
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Eyelashes
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: Ch28_Hair
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: -0, y: 0, z: 0}
       rotation: {x: 0, y: -0, z: -0, w: 1}
       scale: {x: 1, y: 1, z: 1}
     - name: mixamorig10:Hips
-      parentName: Ch28_nonPBR(Clone)
+      parentName: Player(Clone)
       position: {x: 0.000007894907, y: 0.9650281, z: 0.0021092568}
       rotation: {x: -0.00000071650345, y: 0.0000022589936, z: -0.000070573034, w: 1}
       scale: {x: 1, y: 1, z: 1}

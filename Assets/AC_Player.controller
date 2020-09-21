@@ -1,5 +1,32 @@
 %YAML 1.1
 %TAG !u! tag:unity3d.com,2011:
+--- !u!1102 &-8413408412435622859
+AnimatorState:
+  serializedVersion: 5
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_Name: Sprinting
+  m_Speed: 1
+  m_CycleOffset: 0
+  m_Transitions: []
+  m_StateMachineBehaviours: []
+  m_Position: {x: 50, y: 50, z: 0}
+  m_IKOnFeet: 0
+  m_WriteDefaultValues: 1
+  m_Mirror: 0
+  m_SpeedParameterActive: 0
+  m_MirrorParameterActive: 0
+  m_CycleOffsetParameterActive: 0
+  m_TimeParameterActive: 0
+  m_Motion: {fileID: -203655887218126122, guid: 7014d6aaf5e76f04abc18bcbc7f3c0c9,
+    type: 3}
+  m_Tag: 
+  m_SpeedParameter: 
+  m_MirrorParameter: 
+  m_CycleOffsetParameter: 
+  m_TimeParameter: 
 --- !u!1102 &-6315538622216259466
 AnimatorState:
   serializedVersion: 5
@@ -129,10 +156,13 @@ AnimatorStateMachine:
     m_Position: {x: 240, y: 410, z: 0}
   - serializedVersion: 1
     m_State: {fileID: 2176887344859733664}
-    m_Position: {x: 240, y: 490, z: 0}
+    m_Position: {x: 240, y: 570, z: 0}
   - serializedVersion: 1
     m_State: {fileID: -5934339029128711257}
     m_Position: {x: 504.43677, y: 228.25047, z: 0}
+  - serializedVersion: 1
+    m_State: {fileID: -8413408412435622859}
+    m_Position: {x: 240, y: 490, z: 0}
   m_ChildStateMachines: []
   m_AnyStateTransitions: []
   m_EntryTransitions: []
@@ -177,7 +207,7 @@ AnimatorState:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
-  m_Name: Sprinting
+  m_Name: Sprinting (old)
   m_Speed: 1
   m_CycleOffset: 0
   m_Transitions: []
