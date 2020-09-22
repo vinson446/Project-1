@@ -12,5 +12,9 @@ public abstract class Ability : MonoBehaviour
         set => cooldown = value;
     }
 
+    public abstract void SpawnVFX();
+
+    public abstract void Charge();
+
     public abstract void Use(Transform origin, Transform target);
 }

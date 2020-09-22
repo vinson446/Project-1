@@ -26,6 +26,7 @@ public class Health : MonoBehaviour, IDamageable
     public void TakeDamage(int damage)
     {
         currentHealth -= damage;
+
         inGameHUD.UpdateHP();
         thirdPersonMovement.TakeDamageKnockback();
 

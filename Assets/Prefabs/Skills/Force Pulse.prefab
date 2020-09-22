@@ -45,13 +45,18 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cooldown: 3
-  force: 2000
-  range: 20
-  upwardsPush: 5
+  force: 3000
+  range: 5
+  upwardsPush: 3
   delay: 0.35
   VFX:
   - {fileID: 3505228501651204986, guid: f0c275e046b4272469ca6b88ada93e71, type: 3}
   - {fileID: 2063098089024912378, guid: 30d11a13166875e43b9082dd60d2910c, type: 3}
+  radiusVFX: {fileID: 658211624873602406, guid: 008f48a769894a444ab52622d31fd4e4,
+    type: 3}
+  maxRadius: 20
+  radiusGrowthFactor: 5
+  hasSpawnedVFX: 0
   clips:
   - {fileID: 8300000, guid: f2d564f16dd904e48b48d4aa1c3660da, type: 3}
 --- !u!82 &-8576867568410214670

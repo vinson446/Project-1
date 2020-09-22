@@ -23,6 +23,14 @@ public class Player : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
+            abilityLoadout.SpawnVFX();
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            abilityLoadout.ChargeAbility();
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
             abilityLoadout.UseEquippedAbility(transform);
         }
     }

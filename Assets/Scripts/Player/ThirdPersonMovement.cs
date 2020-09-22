@@ -278,10 +278,20 @@ public class ThirdPersonMovement : MonoBehaviour
     {
         switch (skillNum)
         {
+            // force impulse- charge
             case 0:
                 if (isGrounded && !isLanding)
                 {
                     isAttacking = true;
+
+                    return true;
+                }
+                break;
+            
+            // force impulse- attack
+            case 1:
+                if (isAttacking)
+                {
                     canMove = false;
 
                     ForceImpulse?.Invoke();

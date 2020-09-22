@@ -4,7 +4,7 @@ using UnityEngine;
 
 public class AbilityLoadout : MonoBehaviour
 {
-    bool isReady = true;
+    [SerializeField] bool isReady = true;
     float cooldown;
 
     public Ability EquippedAbility
@@ -28,11 +28,30 @@ public class AbilityLoadout : MonoBehaviour
         cooldown = ability.Cooldown;
     }
 
+    public void SpawnVFX()
+    {
+        if (isReady)
+        {
+            if (thirdPersonMovement.CheckIfStartedAttacking(0))
+            {
+                EquippedAbility.SpawnVFX();
+            }
+        }
+    }
+
+    public void ChargeAbility()
+    {
+        if (isReady)
+        {
+            EquippedAbility.Charge();
+        }
+    }
+
     public void UseEquippedAbility(Transform target)
     {
         if (isReady)
         {
-            if(thirdPersonMovement.CheckIfStartedAttacking(0))
+            if (thirdPersonMovement.CheckIfStartedAttacking(1))
             {
                 EquippedAbility.Use(this.transform, target);
 
