@@ -12,12 +12,16 @@ public class ForcePulse : Ability
 
     [Header("VFX and SFX")]
     [SerializeField] GameObject[] VFX;
+    [SerializeField] float VFXGrowthRate;
+    public float VFXScale;
+    float startingVFXScale = 0.5f;
 
     [SerializeField] GameObject radiusVFX;
     [SerializeField] float maxRadius;
     [SerializeField] float radiusGrowthFactor;
+    float startingRadius = 3;
     GameObject radiusObj;
-    public bool hasSpawnedVFX = false;
+    bool hasSpawnedVFX = false;
 
     [SerializeField] AudioClip[] clips;
     AudioSource audioSource;
@@ -27,18 +31,30 @@ public class ForcePulse : Ability
         audioSource = GetComponent<AudioSource>();
     }
 
+    private void Start()
+    {
+        VFXScale = startingVFXScale;
+        startingRadius = range;
+    }
+
     public override void SpawnVFX()
     {
         hasSpawnedVFX = true;
+
         radiusObj = Instantiate(radiusVFX, transform.position + new Vector3(0, 0.1f, 0), Quaternion.Euler(new Vector3(90, 0, 0)));
         radiusObj.transform.parent = this.gameObject.transform;
-        radiusObj.transform.localScale = new Vector3(range, range, range);
+        radiusObj.transform.localScale = new Vector3(startingRadius, startingRadius, startingRadius);
     }
 
     public override void Charge()
     {   
-        if (hasSpawnedVFX && radiusObj.transform.localScale.x < maxRadius)
+        if (hasSpawnedVFX && radiusObj.transform.localScale.x < maxRadius / 2 - 1)
+        {
             radiusObj.transform.localScale += new Vector3(1, 1, 1) * Time.deltaTime * radiusGrowthFactor;
+            range = radiusObj.transform.localScale.x * 2;
+
+            VFXScale += Time.deltaTime * VFXGrowthRate;
+        }
     }
 
     public override void Use(Transform origin, Transform target)
@@ -50,18 +66,18 @@ public class ForcePulse : Ability
     IEnumerator DelayUseToMatchAnimation(Transform origin)
     {
         hasSpawnedVFX = false;
-        range = radiusObj.transform.localScale.x;
+
         Destroy(radiusObj);
 
         audioSource.PlayOneShot(clips[0]);
 
         yield return new WaitForSeconds(0.3f);
 
-        range = 5;
-
         foreach (GameObject o in VFX)
         {
             GameObject vfx = Instantiate(o, transform.position, Quaternion.Euler(new Vector3(-90, 0, 0)));
+            vfx.transform.localScale = new Vector3(VFXScale, VFXScale, VFXScale);
+
             ParticleSystem p = vfx.GetComponent<ParticleSystem>();
             p.Play();
         }
@@ -82,6 +98,9 @@ public class ForcePulse : Ability
                 b.PlaySFX();
             }
         }
+
+        range = startingRadius;
+        VFXScale = startingVFXScale;
     }
 
     private void OnDrawGizmos()

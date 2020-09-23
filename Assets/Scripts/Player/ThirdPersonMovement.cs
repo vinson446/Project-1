@@ -143,7 +143,7 @@ public class ThirdPersonMovement : MonoBehaviour
         if (isGrounded)
         {
             if (playerVerticalVelocity.y < 0)
-                playerVerticalVelocity.y = 0;
+                playerVerticalVelocity.y = -2;
 
             if (isFalling)
                 CheckIfStoppedFalling();
