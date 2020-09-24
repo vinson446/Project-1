@@ -14,6 +14,7 @@ public class InGameHUD : MonoBehaviour
 
     [Header("Skill UI")]
     [SerializeField] Image skillImage;
+    [SerializeField] Image mouseImage;
     [SerializeField] Color skillNormalColor;
     [SerializeField] Color skillCDColor;
     [SerializeField] TextMeshProUGUI cooldownText;
@@ -32,11 +33,11 @@ public class InGameHUD : MonoBehaviour
     {
         hpBar.value = hp.CurrentHealth;
         hpText.text = hpBar.value.ToString() + " / " + hpBar.maxValue.ToString();
+    }
 
-        if (hpBar.value <= 0)
-        {
-            hpBar.gameObject.SetActive(false);
-        }
+    public void ShowSkillChargeVisually()
+    {
+        mouseImage.color = skillCDColor;
     }
 
     public void ShowSkillCooldownVisually()
@@ -46,11 +47,13 @@ public class InGameHUD : MonoBehaviour
 
     public void UpdateCooldownText(float cd)
     {
-        cooldownText.text = cd.ToString();
+        cooldownText.text = (cd + 1).ToString();
     }
 
     public void ResetSkillVisually()
     {
         skillImage.color = skillNormalColor;
+        mouseImage.color = skillNormalColor;
+        cooldownText.text = "";
     }
 }

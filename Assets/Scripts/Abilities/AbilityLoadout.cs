@@ -38,6 +38,8 @@ public class AbilityLoadout : MonoBehaviour
             if (thirdPersonMovement.CheckIfStartedAttacking(0))
             {
                 EquippedAbility.SpawnVFX();
+
+                inGameHUD.ShowSkillChargeVisually();
             }
         }
     }

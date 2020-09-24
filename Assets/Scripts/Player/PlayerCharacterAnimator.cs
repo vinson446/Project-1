@@ -15,6 +15,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
     const string SprintState = "Sprinting";
 
     const string ForceImpulseState = "ForceImpulse";
+    const string HurtState = "Hurt";
+    const string DieState = "Die";
 
     Animator animator = null;
 
@@ -22,6 +24,11 @@ public class PlayerCharacterAnimator : MonoBehaviour
     {
         thirdPersonMovement = GetComponent<ThirdPersonMovement>();
         animator = GetComponent<Animator>();
+
+        for (int i = 0; i < animator.runtimeAnimatorController.animationClips.Length; i++)
+        {
+            print(animator.runtimeAnimatorController.animationClips[i].name + " " + i);
+        }
     }
 
     public void OnIdle()
@@ -50,11 +57,6 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StartCoroutine(TransitionFromLandedToIdle());
     }
 
-    void OnStartSprinting()
-    {
-        animator.CrossFadeInFixedTime(SprintState, 0.1f);
-    }
-
     IEnumerator TransitionFromLandedToIdle()
     {
         yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
@@ -64,15 +66,45 @@ public class PlayerCharacterAnimator : MonoBehaviour
             animator.CrossFadeInFixedTime(IdleState, 0.2f);
     }
 
+    void OnStartSprinting()
+    {
+        animator.CrossFadeInFixedTime(SprintState, 0.1f);
+    }
+
+    void OnHurt()
+    {
+        animator.CrossFadeInFixedTime(HurtState, 0.3f);
+        StartCoroutine(TransitionFromHurtToXAnimation());
+    }
+
+    IEnumerator TransitionFromHurtToXAnimation()
+    {
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[7].length * 0.9f);
+
+        thirdPersonMovement.IsHurt = false;
+
+        if (thirdPersonMovement.isSprinting)
+            OnStartSprinting();
+        else if (thirdPersonMovement.isMoving)
+            OnStartRunning();
+        else if (!thirdPersonMovement.isMoving)
+            OnIdle();
+    }
+
+    void OnDie()
+    {
+        animator.CrossFadeInFixedTime(DieState, 0.3f);
+    }
+
     void OnForceImpulse()
     {
         animator.CrossFadeInFixedTime(ForceImpulseState, 0.2f);
-        StartCoroutine(TransitionFromAttackToGroundedAnimation(6));
+        StartCoroutine(TransitionFromAttackToXAnimation());
     }
 
-    IEnumerator TransitionFromAttackToGroundedAnimation(int index)
+    IEnumerator TransitionFromAttackToXAnimation()
     {
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[index].length);
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[5].length);
 
         thirdPersonMovement.IsAttacking = false;
         thirdPersonMovement.CanMove = true;
@@ -83,7 +115,6 @@ public class PlayerCharacterAnimator : MonoBehaviour
             OnStartRunning();
         else if (!thirdPersonMovement.isMoving)
             OnIdle();
-
     }
 
     private void OnEnable()
@@ -96,6 +127,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.StartSprinting += OnStartSprinting;
 
         thirdPersonMovement.ForceImpulse += OnForceImpulse;
+        thirdPersonMovement.Hurt += OnHurt;
+        thirdPersonMovement.Die += OnDie;
     }
 
     private void OnDisable()
@@ -108,5 +141,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.StartSprinting -= OnStartSprinting;
 
         thirdPersonMovement.ForceImpulse -= OnForceImpulse;
+        thirdPersonMovement.Hurt -= OnHurt;
+        thirdPersonMovement.Die -= OnDie;
     }
 }

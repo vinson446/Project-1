@@ -33,10 +33,18 @@ public class Damage : MonoBehaviour
         }
     }
 
+    private void OnTriggerExit(Collider other)
+    {
+        if (other.gameObject.tag == "PlayerColl")
+        {
+            doDamage = true;
+        }
+    }
+
     IEnumerator DealDamage(Health h)
     {
         doDamage = false;
-        h.TakeDamage(damage);
+        h.TakeDamage(damage, gameObject.transform);
 
         yield return new WaitForSeconds(cooldown);
 

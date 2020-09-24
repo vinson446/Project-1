@@ -23,16 +23,21 @@ public class Health : MonoBehaviour, IDamageable
         currentHealth = maxHealth;    
     }
 
-    public void TakeDamage(int damage)
+    public void TakeDamage(int damage, Transform enemy)
     {
         currentHealth -= damage;
 
         inGameHUD.UpdateHP();
-        thirdPersonMovement.TakeDamageKnockback();
+        thirdPersonMovement.TakeDamageKnockback(enemy);
 
         if (currentHealth <= 0)
         {
             Kill();
+            thirdPersonMovement.CheckIfStartedDead();
+        }
+        else
+        {
+            thirdPersonMovement.CheckIfStartedHurt();
         }
     }
 

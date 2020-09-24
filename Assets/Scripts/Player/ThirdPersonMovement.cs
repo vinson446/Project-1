@@ -13,8 +13,10 @@ public class ThirdPersonMovement : MonoBehaviour
     public event Action Landed = delegate { };
     public event Action StartSprinting = delegate { };
 
-    // attack animation events
+    // combat animation events
     public event Action ForceImpulse = delegate { };
+    public event Action Hurt = delegate { };
+    public event Action Die = delegate { };
 
     [Header("References")]
     [SerializeField] CharacterController characterController;
@@ -34,10 +36,12 @@ public class ThirdPersonMovement : MonoBehaviour
 
     [Header("Physics Settings")]
     [SerializeField] float jumpForce;
-    [SerializeField] float takeDamageForce;
+    [SerializeField] float knockbackBackwardsForce;
+    [SerializeField] float knockbackUpwardsForce;
     [SerializeField] float gravity;
     [SerializeField] bool isGrounded;
     Vector3 playerVerticalVelocity;
+    Vector3 velocity;
 
     // animation checks 
     public bool isMoving { get; private set; }
@@ -49,7 +53,10 @@ public class ThirdPersonMovement : MonoBehaviour
 
     bool isAttacking;
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
-    public bool isDamaged { get; private set; }
+    bool isHurt;
+    public bool IsHurt { get => isHurt; set => isHurt = value; }
+    bool isDead;
+    //public bool IsDead { get => isDead; set => isDead = value; }
 
     private void Awake()
     {
@@ -65,15 +72,18 @@ public class ThirdPersonMovement : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if (canMove)
+        if (canMove && !isHurt && !isDead)
         {
             HorizontalMovement();
             VerticalMovement();
         }
-        else
+        // knockback
+        else if (canMove && (isHurt || isDead))
         {
-            ApplyGravity();
+            characterController.Move((velocity + playerVerticalVelocity) * Time.deltaTime);
         }
+
+        ApplyGravity();
     }
 
     // apply horizontal movement on x and z axes- going forwards/backwards and sideways
@@ -155,47 +165,41 @@ public class ThirdPersonMovement : MonoBehaviour
             playerVerticalVelocity.y = Mathf.Sqrt(jumpForce * -2.0f * gravity);
         }
 
-        // gravity
-        playerVerticalVelocity.y += gravity * Time.deltaTime;
-
         characterController.Move(playerVerticalVelocity * Time.deltaTime);
 
-        if (!isDamaged)
+        if (characterController.velocity.y > 2)
         {
-            if (characterController.velocity.y > 2)
-            {
-                CheckIfStartedJumping();
-            }
-            else
-            {
-                CheckIfStoppedJumping();
-                CheckIfStartedFalling();
-            }
+            CheckIfStartedJumping();
         }
         else
         {
-            CheckIfStoppedFalling();
+            CheckIfStoppedJumping();
+            CheckIfStartedFalling();
         }
     }
 
     void ApplyGravity()
     {
         playerVerticalVelocity.y += gravity * Time.deltaTime;
-
-        characterController.Move(playerVerticalVelocity * Time.deltaTime);
     }
 
-    public void TakeDamageKnockback()
+    public void TakeDamageKnockback(Transform e)
     {
-        isDamaged = true;
-        playerVerticalVelocity.y = Mathf.Sqrt(takeDamageForce * -2.0f * gravity);
+        transform.LookAt(new Vector3(e.position.x, transform.position.y, e.position.z));
+        
+        velocity = -transform.forward * knockbackBackwardsForce * -.2f * -9.81f;
+        velocity.y = knockbackUpwardsForce;
 
-        Invoke("InvincibilityFrames", 1);
+        StartCoroutine(ReduceKnockbackForceOverTime());
     }
 
-    void InvincibilityFrames()
+    IEnumerator ReduceKnockbackForceOverTime()
     {
-        isDamaged = false;
+        while (velocity.magnitude > 1)
+        {
+            velocity /= 2;
+            yield return new WaitForSeconds(0.1f);
+        }
     }
 
     // event calls to animators
@@ -283,6 +287,7 @@ public class ThirdPersonMovement : MonoBehaviour
                 if (isGrounded && !isLanding)
                 {
                     isAttacking = true;
+                    canMove = false;
 
                     return true;
                 }
@@ -292,8 +297,6 @@ public class ThirdPersonMovement : MonoBehaviour
             case 1:
                 if (isAttacking)
                 {
-                    canMove = false;
-
                     ForceImpulse?.Invoke();
 
                     return true;
@@ -305,5 +308,27 @@ public class ThirdPersonMovement : MonoBehaviour
         }
 
         return false;
+    }
+
+    public void CheckIfStartedHurt()
+    {
+        isHurt = true;
+
+        Hurt?.Invoke();
+    }
+
+    public void CheckIfStartedDead()
+    {
+        isDead = true;
+
+        Die?.Invoke();
+        StartCoroutine(StopMovementAfterDeath());
+    }
+
+    IEnumerator StopMovementAfterDeath()
+    {
+        yield return new WaitForSeconds(2);
+
+        canMove = false;
     }
 }
