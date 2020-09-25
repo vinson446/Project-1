@@ -13,24 +13,23 @@ public class PlaySound : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
-    // Update is called once per frame
-    void Update()
-    {
-        
-    }
-
+    // called once
     public void PlaySFXOneShot(int index, float volume, float pitch)
     {
         audioSource.volume = volume;
         audioSource.pitch = pitch;
+        audioSource.loop = false;
+
         audioSource.PlayOneShot(clips[index]);
     }
 
+    // called once
     public void PlaySFXLooping(int index, float volume, float pitch)
     {
         audioSource.volume = volume;
         audioSource.pitch = pitch;
         audioSource.clip = clips[index];
+        audioSource.loop = true;
 
         audioSource.Play();
     }

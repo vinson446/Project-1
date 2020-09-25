@@ -20,6 +20,13 @@ public class InGameHUD : MonoBehaviour
     [SerializeField] TextMeshProUGUI cooldownText;
     float cooldown;
 
+    ThirdPersonMovement thirdPersonMovement;
+
+    private void Awake()
+    {
+        thirdPersonMovement = FindObjectOfType<ThirdPersonMovement>();
+    }
+
     // Start is called before the first frame update
     void Start()
     {
@@ -29,31 +36,60 @@ public class InGameHUD : MonoBehaviour
         hpText.text = hpBar.value.ToString() + " / " + hpBar.maxValue.ToString();
     }
 
+    private void Update()
+    {
+        if (cooldown > 0)
+        {
+            ShowSkillChargeColor();
+            ShowSkillCooldownColor();
+        }
+        else
+        {
+            if (!thirdPersonMovement.isGrounded)
+            {
+                ShowSkillChargeColor();
+                ShowSkillCooldownColor();
+            }
+            else
+            {
+                ResetSkillColor();
+            }
+        }
+    }
+
     public void UpdateHP()
     {
         hpBar.value = hp.CurrentHealth;
         hpText.text = hpBar.value.ToString() + " / " + hpBar.maxValue.ToString();
     }
 
-    public void ShowSkillChargeVisually()
+    public void ShowSkillChargeColor()
     {
         mouseImage.color = skillCDColor;
     }
 
-    public void ShowSkillCooldownVisually()
+    public void ShowSkillCooldownColor()
     {
         skillImage.color = skillCDColor;
     }
 
     public void UpdateCooldownText(float cd)
     {
-        cooldownText.text = (cd + 1).ToString();
+        cooldown = cd + 1;
+        cooldownText.text = cooldown.ToString();
     }
 
-    public void ResetSkillVisually()
+    public void ResetSkillColor()
     {
         skillImage.color = skillNormalColor;
         mouseImage.color = skillNormalColor;
+    }
+
+    public void ResetSkillCooldown()
+    {
+        if (cooldown == 1)
+            cooldown = 0;
+
         cooldownText.text = "";
     }
 }

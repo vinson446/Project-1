@@ -21,15 +21,30 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
     Animator animator = null;
 
+    [Header("Audio")]
+    [SerializeField] AudioClip[] clips;
+    AudioSource audioSource;
+
+    [Header("Audio- Movement Settings")]
+    [SerializeField] float movingVolume;
+    [SerializeField] float movingPitch;
+    [SerializeField] float runInterval;
+    [SerializeField] float sprintInterval;
+
+    [Header("Audio- Jump Settings")]
+    [SerializeField] float jumpVolume;
+    [SerializeField] float jumpPitch;
+
+    [Header("Audio- Landed Settings")]
+    [SerializeField] float landedVolume;
+    [SerializeField] float landedPitch;
+
     private void Awake()
     {
         thirdPersonMovement = GetComponent<ThirdPersonMovement>();
         animator = GetComponent<Animator>();
 
-        for (int i = 0; i < animator.runtimeAnimatorController.animationClips.Length; i++)
-        {
-            print(animator.runtimeAnimatorController.animationClips[i].name + " " + i);
-        }
+        audioSource = GetComponent<AudioSource>();
     }
 
     public void OnIdle()
@@ -40,11 +55,47 @@ public class PlayerCharacterAnimator : MonoBehaviour
     void OnStartRunning()
     {
         animator.CrossFadeInFixedTime(RunState, 0.1f);
+
+        StopAllCoroutines();
+        StartCoroutine(LoopRun(movingVolume, movingPitch, runInterval));
+    }
+
+    IEnumerator LoopRun(float volume, float pitch, float interval)
+    {
+        // wait for thirdPersonMovement.isMoving to turn true
+        yield return new WaitForSeconds(0.01f);
+
+        audioSource.volume = volume;
+        audioSource.pitch = pitch;
+        audioSource.clip = clips[0];
+
+        while (thirdPersonMovement.isMoving && !thirdPersonMovement.isDead && !thirdPersonMovement.IsHurt && !thirdPersonMovement.IsAttacking)
+        {
+            if (audioSource.isPlaying)
+            {
+                audioSource.Stop();
+            }
+
+            audioSource.Play();
+
+            yield return new WaitForSeconds(interval);
+        }
     }
 
     void OnJumping()
     {
         animator.CrossFadeInFixedTime(JumpState, 0.2f);
+
+        StopAllCoroutines();
+        PlayJump(jumpVolume, jumpPitch);
+    }
+
+    void PlayJump(float volume, float pitch)
+    {
+        audioSource.volume = volume;
+        audioSource.pitch = pitch;
+
+        audioSource.PlayOneShot(clips[1]);
     }
 
     void OnFalling()
@@ -55,21 +106,40 @@ public class PlayerCharacterAnimator : MonoBehaviour
     void OnLanded()
     {
         animator.CrossFadeInFixedTime(LandedState, 0.2f);
-        StartCoroutine(TransitionFromLandedToIdle());
+
+        StopAllCoroutines();
+        PlayLanded(landedVolume, landedPitch);
+
+        StartCoroutine(TransitionFromLandedToXAnimation());
     }
 
-    IEnumerator TransitionFromLandedToIdle()
+    void PlayLanded(float volume, float pitch)
+    {
+        audioSource.volume = volume;
+        audioSource.pitch = pitch;
+
+        audioSource.PlayOneShot(clips[2]);
+    }
+
+    IEnumerator TransitionFromLandedToXAnimation()
     {
         yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
         thirdPersonMovement.IsLanding = false;
 
-        if (!thirdPersonMovement.isMoving && !thirdPersonMovement.isJumping)
+        if (thirdPersonMovement.isDead)
+            animator.CrossFadeInFixedTime(DieState, 0.2f);
+        else if (thirdPersonMovement.IsHurt)
+            animator.CrossFadeInFixedTime(HurtState, 0.2f);
+        else if (!thirdPersonMovement.isMoving && !thirdPersonMovement.isJumping)
             animator.CrossFadeInFixedTime(IdleState, 0.2f);
     }
 
     void OnStartSprinting()
     {
         animator.CrossFadeInFixedTime(SprintState, 0.1f);
+
+        StopAllCoroutines();
+        StartCoroutine(LoopRun(movingVolume, movingPitch, sprintInterval));
     }
 
     void OnForceImpulse()

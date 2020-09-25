@@ -36,13 +36,18 @@ public class Health : MonoBehaviour, IDamageable
         if (currentHealth <= 0)
         {
             Kill();
+
             thirdPersonMovement.CheckIfStartedDead();
-            soundManager.PlaySFXOneShot(0, 0.25f, 0.8f);
+
+            StopAllCoroutines();
+            soundManager.PlaySFXOneShot(0, 0.75f, 0.85f);
         }
         else
         {
             thirdPersonMovement.CheckIfStartedHurt();
-            soundManager.PlaySFXOneShot(0, 0.25f, 0.9f);
+
+            StopAllCoroutines();
+            soundManager.PlaySFXOneShot(0, 0.75f, 0.9f);
         }
     }
 

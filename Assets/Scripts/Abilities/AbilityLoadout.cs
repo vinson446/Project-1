@@ -33,13 +33,11 @@ public class AbilityLoadout : MonoBehaviour
 
     public void SpawnVFX()
     {
-        if (isReady)
+        if (isReady && !thirdPersonMovement.IsHurt)
         {
             if (thirdPersonMovement.CheckIfStartedAttacking(0))
             {
                 EquippedAbility.SpawnVFX();
-
-                inGameHUD.ShowSkillChargeVisually();
             }
         }
     }
@@ -49,6 +47,8 @@ public class AbilityLoadout : MonoBehaviour
         if (isReady)
         {
             EquippedAbility.Charge();
+
+            inGameHUD.ShowSkillChargeColor();
         }
     }
 
@@ -62,7 +62,7 @@ public class AbilityLoadout : MonoBehaviour
 
                 isReady = false;
 
-                inGameHUD.ShowSkillCooldownVisually();
+                inGameHUD.ShowSkillCooldownColor();
                 StartCoroutine(CooldownReset(cooldown));
             }
         }
@@ -80,7 +80,8 @@ public class AbilityLoadout : MonoBehaviour
 
         isReady = true;
 
-        inGameHUD.ResetSkillVisually();
+        inGameHUD.ResetSkillColor();
+        inGameHUD.ResetSkillCooldown();
     }
 
     public void RemoveCurrentAbilityObject()

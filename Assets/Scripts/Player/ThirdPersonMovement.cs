@@ -40,7 +40,7 @@ public class ThirdPersonMovement : MonoBehaviour
     [SerializeField] float knockbackBackwardsForce;
     [SerializeField] float knockbackUpwardsForce;
     [SerializeField] float gravity;
-    [SerializeField] bool isGrounded;
+    public bool isGrounded { get; private set; }
     Vector3 playerVerticalVelocity;
     Vector3 velocity;
 
@@ -56,12 +56,11 @@ public class ThirdPersonMovement : MonoBehaviour
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }
     bool isHurt;
     public bool IsHurt { get => isHurt; set => isHurt = value; }
-    bool isDead;
-    //public bool IsDead { get => isDead; set => isDead = value; }
+    public bool isDead { get; private set; }
 
     private void Awake()
     {
-        characterControllerColl = characterController.GetComponent<Collider>();    
+        characterControllerColl = characterController.GetComponent<Collider>();
     }
 
     // Start is called before the first frame update
