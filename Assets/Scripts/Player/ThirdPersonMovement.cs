@@ -17,6 +17,7 @@ public class ThirdPersonMovement : MonoBehaviour
     public event Action ForceImpulse = delegate { };
     public event Action Hurt = delegate { };
     public event Action Die = delegate { };
+    public event Action Charge = delegate { };
 
     [Header("References")]
     [SerializeField] CharacterController characterController;
@@ -81,6 +82,11 @@ public class ThirdPersonMovement : MonoBehaviour
         else if (canMove && (isHurt || isDead))
         {
             characterController.Move((velocity + playerVerticalVelocity) * Time.deltaTime);
+        }
+        // gravity
+        else
+        {
+            characterController.Move(playerVerticalVelocity * Time.deltaTime);
         }
 
         ApplyGravity();
@@ -288,6 +294,8 @@ public class ThirdPersonMovement : MonoBehaviour
                 {
                     isAttacking = true;
                     canMove = false;
+
+                    Charge?.Invoke();
 
                     return true;
                 }

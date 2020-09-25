@@ -23,8 +23,8 @@ public class ForcePulse : Ability
     GameObject radiusObj;
     bool hasSpawnedVFX = false;
 
-    [SerializeField] AudioClip[] clips;
     AudioSource audioSource;
+    [SerializeField] AudioClip[] clips;
 
     private void Awake()
     {
@@ -87,7 +87,7 @@ public class ForcePulse : Ability
         foreach (Collider c in coll)
         {
             Rigidbody rb = c.GetComponent<Rigidbody>();
-            if (rb != null)
+            if (rb != null && c.gameObject.tag != "Spike")
             {
                 rb.AddExplosionForce(force, origin.position, range, upwardsPush);
             }

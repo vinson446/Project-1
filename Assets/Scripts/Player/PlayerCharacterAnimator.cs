@@ -17,6 +17,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
     const string ForceImpulseState = "ForceImpulse";
     const string HurtState = "Hurt";
     const string DieState = "Die";
+    const string ChargeState = "Charge";
 
     Animator animator = null;
 
@@ -71,6 +72,27 @@ public class PlayerCharacterAnimator : MonoBehaviour
         animator.CrossFadeInFixedTime(SprintState, 0.1f);
     }
 
+    void OnForceImpulse()
+    {
+        animator.CrossFadeInFixedTime(ForceImpulseState, 0.2f);
+        StartCoroutine(TransitionFromAttackToXAnimation());
+    }
+
+    IEnumerator TransitionFromAttackToXAnimation()
+    {
+        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[5].length);
+
+        thirdPersonMovement.IsAttacking = false;
+        thirdPersonMovement.CanMove = true;
+
+        if (thirdPersonMovement.isSprinting)
+            OnStartSprinting();
+        else if (thirdPersonMovement.isMoving)
+            OnStartRunning();
+        else if (!thirdPersonMovement.isMoving)
+            OnIdle();
+    }
+
     void OnHurt()
     {
         animator.CrossFadeInFixedTime(HurtState, 0.3f);
@@ -96,25 +118,9 @@ public class PlayerCharacterAnimator : MonoBehaviour
         animator.CrossFadeInFixedTime(DieState, 0.3f);
     }
 
-    void OnForceImpulse()
+    void OnCharge()
     {
-        animator.CrossFadeInFixedTime(ForceImpulseState, 0.2f);
-        StartCoroutine(TransitionFromAttackToXAnimation());
-    }
-
-    IEnumerator TransitionFromAttackToXAnimation()
-    {
-        yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[5].length);
-
-        thirdPersonMovement.IsAttacking = false;
-        thirdPersonMovement.CanMove = true;
-
-        if (thirdPersonMovement.isSprinting)
-            OnStartSprinting();
-        else if (thirdPersonMovement.isMoving)
-            OnStartRunning();
-        else if (!thirdPersonMovement.isMoving)
-            OnIdle();
+        animator.CrossFadeInFixedTime(ChargeState, 0.2f);
     }
 
     private void OnEnable()
@@ -129,6 +135,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.ForceImpulse += OnForceImpulse;
         thirdPersonMovement.Hurt += OnHurt;
         thirdPersonMovement.Die += OnDie;
+        thirdPersonMovement.Charge += OnCharge;
     }
 
     private void OnDisable()
@@ -143,5 +150,6 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.ForceImpulse -= OnForceImpulse;
         thirdPersonMovement.Hurt -= OnHurt;
         thirdPersonMovement.Die -= OnDie;
+        thirdPersonMovement.Charge -= OnCharge;
     }
 }

@@ -11,11 +11,14 @@ public class Health : MonoBehaviour, IDamageable
 
     InGameHUD inGameHUD;
     ThirdPersonMovement thirdPersonMovement;
+    PlaySound soundManager;
 
     private void Awake()
     {
         inGameHUD = FindObjectOfType<InGameHUD>();
+
         thirdPersonMovement = GetComponent<ThirdPersonMovement>();
+        soundManager = GetComponent<PlaySound>();
     }
 
     private void Start()
@@ -34,10 +37,12 @@ public class Health : MonoBehaviour, IDamageable
         {
             Kill();
             thirdPersonMovement.CheckIfStartedDead();
+            soundManager.PlaySFXOneShot(0, 0.25f, 0.8f);
         }
         else
         {
             thirdPersonMovement.CheckIfStartedHurt();
+            soundManager.PlaySFXOneShot(0, 0.25f, 0.9f);
         }
     }
 
