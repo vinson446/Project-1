@@ -288,6 +288,7 @@ public class ThirdPersonMovement : MonoBehaviour
         else
         {
             isLanding = false;
+
             playerCharacterAnimator.PlayAirborneVFX(1);
         }
     }

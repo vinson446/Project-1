@@ -41,7 +41,9 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
     [Header("Audio- Landed Settings")]
     [SerializeField] float landedVolume;
+    public float LandedVolume { get => landedVolume; set => landedVolume = value; }
     [SerializeField] float landedPitch;
+    public float LandedPitch { get => landedPitch; set => landedPitch = value; }
 
     private void Awake()
     {
@@ -145,7 +147,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StartCoroutine(TransitionFromLandedToXAnimation());
     }
 
-    void PlayLanded(float volume, float pitch)
+    public void PlayLanded(float volume, float pitch)
     {
         audioSource.volume = volume;
         audioSource.pitch = pitch;
