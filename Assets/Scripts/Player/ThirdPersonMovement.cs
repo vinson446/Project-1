@@ -58,9 +58,15 @@ public class ThirdPersonMovement : MonoBehaviour
     public bool IsHurt { get => isHurt; set => isHurt = value; }
     public bool isDead { get; private set; }
 
+    public bool WasInAir { get; private set; }
+
+    PlayerCharacterAnimator playerCharacterAnimator;
+
     private void Awake()
     {
         characterControllerColl = characterController.GetComponent<Collider>();
+
+        playerCharacterAnimator = GetComponent<PlayerCharacterAnimator>();
     }
 
     // Start is called before the first frame update
@@ -280,7 +286,10 @@ public class ThirdPersonMovement : MonoBehaviour
             Landed?.Invoke();
         }
         else
+        {
             isLanding = false;
+            playerCharacterAnimator.PlayAirborneVFX(1);
+        }
     }
 
     public bool CheckIfStartedAttacking(int skillNum)

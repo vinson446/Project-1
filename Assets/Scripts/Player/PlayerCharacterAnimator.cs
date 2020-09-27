@@ -21,6 +21,10 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
     Animator animator = null;
 
+    [Header("VFX")]
+    [SerializeField] ParticleSystem[] GroundedVFX;
+    [SerializeField] ParticleSystem[] AirborneVFX;
+
     [Header("Audio")]
     [SerializeField] AudioClip[] clips;
     AudioSource audioSource;
@@ -47,9 +51,30 @@ public class PlayerCharacterAnimator : MonoBehaviour
         audioSource = GetComponent<AudioSource>();
     }
 
+    void PlayGroundedVFX(int index)
+    {
+        StopGroundedVFX();
+
+        GroundedVFX[index].Play();
+    }
+
+    public void PlayAirborneVFX(int index)
+    {
+        ParticleSystem p = Instantiate(AirborneVFX[index], transform.position, Quaternion.Euler(new Vector3(90, 0, 0)));
+        p.Play();
+    }
+
+    void StopGroundedVFX()
+    {
+        foreach (ParticleSystem p in GroundedVFX)
+            p.Stop();
+    }
+
     public void OnIdle()
     {
         animator.CrossFadeInFixedTime(IdleState, 0.2f);
+
+        StopGroundedVFX();
     }
 
     void OnStartRunning()
@@ -58,6 +83,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(LoopRun(movingVolume, movingPitch, runInterval));
+
+        PlayGroundedVFX(0);
     }
 
     IEnumerator LoopRun(float volume, float pitch, float interval)
@@ -88,6 +115,9 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         StopAllCoroutines();
         PlayJump(jumpVolume, jumpPitch);
+
+        StopGroundedVFX();
+        PlayAirborneVFX(0);
     }
 
     void PlayJump(float volume, float pitch)
@@ -110,6 +140,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StopAllCoroutines();
         PlayLanded(landedVolume, landedPitch);
 
+        PlayAirborneVFX(1);
+
         StartCoroutine(TransitionFromLandedToXAnimation());
     }
 
@@ -124,6 +156,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
     IEnumerator TransitionFromLandedToXAnimation()
     {
         yield return new WaitForSeconds(animator.runtimeAnimatorController.animationClips[4].length);
+
         thirdPersonMovement.IsLanding = false;
 
         if (thirdPersonMovement.isDead)
@@ -140,6 +173,8 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         StopAllCoroutines();
         StartCoroutine(LoopRun(movingVolume, movingPitch, sprintInterval));
+
+        PlayGroundedVFX(1);
     }
 
     void OnForceImpulse()
@@ -186,11 +221,15 @@ public class PlayerCharacterAnimator : MonoBehaviour
     void OnDie()
     {
         animator.CrossFadeInFixedTime(DieState, 0.3f);
+
+        StopGroundedVFX();
     }
 
     void OnCharge()
     {
         animator.CrossFadeInFixedTime(ChargeState, 0.2f);
+
+        StopGroundedVFX();
     }
 
     private void OnEnable()
