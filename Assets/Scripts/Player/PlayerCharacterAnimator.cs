@@ -83,10 +83,10 @@ public class PlayerCharacterAnimator : MonoBehaviour
     {
         animator.CrossFadeInFixedTime(RunState, 0.1f);
 
+        PlayGroundedVFX(0);
+
         StopAllCoroutines();
         StartCoroutine(LoopRun(movingVolume, movingPitch, runInterval));
-
-        PlayGroundedVFX(0);
     }
 
     IEnumerator LoopRun(float volume, float pitch, float interval)
@@ -173,10 +173,10 @@ public class PlayerCharacterAnimator : MonoBehaviour
     {
         animator.CrossFadeInFixedTime(SprintState, 0.1f);
 
+        PlayGroundedVFX(1);
+
         StopAllCoroutines();
         StartCoroutine(LoopRun(movingVolume, movingPitch, sprintInterval));
-
-        PlayGroundedVFX(1);
     }
 
     void OnForceImpulse()
@@ -192,18 +192,28 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.IsAttacking = false;
         thirdPersonMovement.CanMove = true;
 
-        if (thirdPersonMovement.isSprinting)
-            OnStartSprinting();
-        else if (thirdPersonMovement.isMoving)
-            OnStartRunning();
-        else if (!thirdPersonMovement.isMoving)
+        if (!thirdPersonMovement.isMoving)
+        {
             OnIdle();
+        }
+        else if (Input.GetKey(KeyCode.LeftShift))
+        {
+            thirdPersonMovement.IsSprinting = true;
+            OnStartSprinting();
+        }
+        else if (!Input.GetKey(KeyCode.LeftShift))
+        {
+            thirdPersonMovement.IsSprinting = false;
+            OnStartRunning();
+        }
     }
 
     void OnHurt()
     {
         animator.CrossFadeInFixedTime(HurtState, 0.3f);
         StartCoroutine(TransitionFromHurtToXAnimation());
+
+        StopGroundedVFX();
     }
 
     IEnumerator TransitionFromHurtToXAnimation()
@@ -212,12 +222,20 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         thirdPersonMovement.IsHurt = false;
 
-        if (thirdPersonMovement.isSprinting)
-            OnStartSprinting();
-        else if (thirdPersonMovement.isMoving)
-            OnStartRunning();
-        else if (!thirdPersonMovement.isMoving)
+        if (!thirdPersonMovement.isMoving)
+        {
             OnIdle();
+        }
+        else if (Input.GetKey(KeyCode.LeftShift))
+        {
+            thirdPersonMovement.IsSprinting = true;
+            OnStartSprinting();
+        }
+        else if (!Input.GetKey(KeyCode.LeftShift))
+        {
+            thirdPersonMovement.IsSprinting = false;
+            OnStartRunning();
+        }
     }
 
     void OnDie()

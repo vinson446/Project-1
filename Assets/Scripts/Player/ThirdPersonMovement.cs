@@ -50,7 +50,8 @@ public class ThirdPersonMovement : MonoBehaviour
     bool isFalling;
     bool isLanding;
     public bool IsLanding { get => isLanding; set => isLanding = value; }
-    public bool isSprinting { get; private set; }
+    bool isSprinting;
+    public bool IsSprinting { get => isSprinting; set => isSprinting = value; }
 
     bool isAttacking;
     public bool IsAttacking { get => isAttacking; set => isAttacking = value; }

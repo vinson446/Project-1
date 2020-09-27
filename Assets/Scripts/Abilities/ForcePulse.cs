@@ -7,6 +7,7 @@ public class ForcePulse : Ability
 {
     [Header("ForcePulse Settings")]
     [SerializeField] float force;
+    [SerializeField] float forceGrowthRate;
     [SerializeField] float range;
     [SerializeField] float upwardsPush;
     [SerializeField] float delay;
@@ -19,7 +20,13 @@ public class ForcePulse : Ability
     float startingRadius = 3;
     GameObject radiusObj;
     GameObject chargeObj;
+    ParticleSystem chargeObjPS;
     bool hasSpawnedVFX = false;
+
+    [SerializeField] float changeColorSpeed = 0.1f;
+    [SerializeField] Color startColor;
+    [SerializeField] Color endColor;
+    float startTime;
 
     [Header("VFX- Attack")]
     [SerializeField] GameObject[] VFX;
@@ -60,6 +67,7 @@ public class ForcePulse : Ability
 
         chargeObj = Instantiate(chargeVFX, transform.position + new Vector3(0, 1, 0), Quaternion.Euler(new Vector3(-90, 0, 0)));
         chargeObj.transform.parent = gameObject.transform;
+        chargeObjPS = chargeObj.GetComponent<ParticleSystem>();
 
         audioSource.clip = clips[1];
         audioSource.loop = true;
@@ -67,13 +75,27 @@ public class ForcePulse : Ability
     }
 
     public override void Charge()
-    {   
-        if (hasSpawnedVFX && radiusObj.transform.localScale.x < maxRadius / 2 - 1)
+    {
+        if (hasSpawnedVFX )
         {
-            radiusObj.transform.localScale += new Vector3(1, 1, 1) * Time.deltaTime * radiusGrowthFactor;
-            range = radiusObj.transform.localScale.x * 2;
+            if (radiusObj.transform.localScale.x < maxRadius / 2 - 1)
+            {
+                // range boost vfx
+                radiusObj.transform.localScale += new Vector3(1, 1, 1) * Time.deltaTime * radiusGrowthFactor;
+                range = radiusObj.transform.localScale.x * 2.25f;
 
-            VFXScale += Time.deltaTime * VFXGrowthRate;
+                VFXScale += Time.deltaTime * VFXGrowthRate;
+
+                // force boost vfx
+                force += Time.deltaTime * forceGrowthRate;
+            }
+
+            // force boost vfx
+            float t = startTime * changeColorSpeed;
+            startTime += Time.deltaTime;
+            var main = chargeObjPS.main;
+            main.startColor = Color.Lerp(startColor, endColor, t);
+            print(t);
         }
     }
 
@@ -86,6 +108,11 @@ public class ForcePulse : Ability
     IEnumerator DelayUseToMatchAnimation(Transform origin)
     {
         hasSpawnedVFX = false;
+
+        force = 1000;
+        var main = chargeObjPS.main;
+        main.startColor = startColor;
+        startTime = 0;
 
         Destroy(chargeObj);
         Destroy(radiusObj);
