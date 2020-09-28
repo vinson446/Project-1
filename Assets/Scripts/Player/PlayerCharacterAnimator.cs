@@ -179,7 +179,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         StartCoroutine(LoopRun(movingVolume, movingPitch, sprintInterval));
     }
 
-    void OnForceImpulse()
+    void OnAttack()
     {
         animator.CrossFadeInFixedTime(ForceImpulseState, 0.2f);
         StartCoroutine(TransitionFromAttackToXAnimation());
@@ -192,6 +192,11 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.IsAttacking = false;
         thirdPersonMovement.CanMove = true;
 
+        TransitionToXAnimation();
+    }
+
+    void TransitionToXAnimation()
+    {
         if (!thirdPersonMovement.isMoving)
         {
             OnIdle();
@@ -222,20 +227,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
 
         thirdPersonMovement.IsHurt = false;
 
-        if (!thirdPersonMovement.isMoving)
-        {
-            OnIdle();
-        }
-        else if (Input.GetKey(KeyCode.LeftShift))
-        {
-            thirdPersonMovement.IsSprinting = true;
-            OnStartSprinting();
-        }
-        else if (!Input.GetKey(KeyCode.LeftShift))
-        {
-            thirdPersonMovement.IsSprinting = false;
-            OnStartRunning();
-        }
+        TransitionToXAnimation();
     }
 
     void OnDie()
@@ -261,7 +253,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.Landed += OnLanded;
         thirdPersonMovement.StartSprinting += OnStartSprinting;
 
-        thirdPersonMovement.ForceImpulse += OnForceImpulse;
+        thirdPersonMovement.ForceImpulse += OnAttack;
         thirdPersonMovement.Hurt += OnHurt;
         thirdPersonMovement.Die += OnDie;
         thirdPersonMovement.Charge += OnCharge;
@@ -276,7 +268,7 @@ public class PlayerCharacterAnimator : MonoBehaviour
         thirdPersonMovement.Landed -= OnLanded;
         thirdPersonMovement.StartSprinting -= OnStartSprinting;
 
-        thirdPersonMovement.ForceImpulse -= OnForceImpulse;
+        thirdPersonMovement.ForceImpulse -= OnAttack;
         thirdPersonMovement.Hurt -= OnHurt;
         thirdPersonMovement.Die -= OnDie;
         thirdPersonMovement.Charge -= OnCharge;
